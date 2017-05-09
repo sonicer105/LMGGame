@@ -481,3 +481,7 @@ __pycache__/
 *.xsd.cs
 
 # End of https://www.gitignore.io/api/node,macos,linux,windows,phpstorm,visualstudio,visualstudiocode
+
+# CSS Files (SCSS will recompile them)
+*.map
+*.css
