@@ -217,7 +217,7 @@ $RECYCLE.BIN/
 x64/
 x86/
 bld/
-[Bb]in/
+#[Bb]in/ <- should not have been here. ops!
 [Oo]bj/
 [Ll]og/
 
