@@ -4,8 +4,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <% if(typeof title != 'undefined'){ %>
 <title><%- title %></title>
-<% } else if (typeof message != 'undefined') { %>
+<% } else if (typeof error.status != 'undefined' && typeof message != 'undefined') { %>
 <title><%- error.status + " " + message %></title>
+<% } else if (typeof message != 'undefined') { %>
+<title><%- message %></title>
 <% } else { %>
 <title>LTT Game</title>
 <% } %>
