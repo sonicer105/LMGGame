@@ -1,5 +1,5 @@
 main{
-    min-height: calc(100vh - 68px - 71px);
+    min-height: calc(100vh - 139px);
     // min-height 100% minus footer and nav
 }
 footer{
@@ -10,11 +10,13 @@ footer{
 footer p{
     margin: 0;
 }
+
 //Fix margin on .panel and .alert headers
 .panel, .alert{
-    h1:first-child, h2:first-child, h3:first-child,
-    h4:first-child, h5:first-child, h6:first-child{
-        margin-top: 10px;
+    h1, h2, h3, h4, h5, h6{
+        &:first-child{
+            margin-top: 10px;
+        }
     }
 }
 
@@ -34,10 +36,11 @@ footer p{
 }
 
 //Removes navbar brand hover effect
-.navbar-inverse .navbar-brand:hover,
-.navbar-inverse .navbar-brand:focus {
-    background-color: transparent;
-    color: #999999;
+.navbar-inverse {
+    .navbar-brand:hover, .navbar-brand:focus {
+        background-color: transparent;
+        color: #999999;
+    }
 }
 
 //Fix paragraph spacing in navbar-text

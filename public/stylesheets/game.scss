@@ -1,0 +1,36 @@
+nav {
+  margin-bottom: 0 !important;
+}
+#game-window{
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 119px);
+  &:before{
+
+  }
+}
+#game-score, #game-menu-button{
+  font-family: monospace;
+  display: flex;
+  border-bottom: solid 1px #777;
+  align-items: center;
+  vertical-align: middle;
+  position: absolute;
+  padding: 0.5em 1em;
+  background-color: #aaa;
+  font-weight: bold;
+  height: 50px;
+  width: 100px;
+}
+#game-score{
+  top: 0;
+  left: 0;
+  border-bottom-right-radius: 1em;
+  border-right: solid 1px #777;
+}
+#game-menu-button{
+  top: 0;
+  right: 0;
+  border-bottom-left-radius: 1em;
+  border-left: solid 1px #777;
+}
