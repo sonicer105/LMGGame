@@ -1,6 +1,46 @@
-body{
-  padding: 50px;
+main{
+    min-height: calc(100vh - 68px - 71px);
+    // min-height 100% minus footer and nav
 }
-a{
-  color: #00B7FF;
+footer{
+    color: #9d9d9d;
+    background-color: #222;
+    padding: 1em 0;
+}
+footer p{
+    margin: 0;
+}
+//Fix margin on .panel and .alert headers
+.panel, .alert{
+    h1:first-child, h2:first-child, h3:first-child,
+    h4:first-child, h5:first-child, h6:first-child{
+        margin-top: 10px;
+    }
+}
+
+//Color Pre in .alert-danger
+.alert-danger pre{
+    color: #f00;
+    background-color: #fee;
+}
+
+//Fix brand logo size
+.navbar-brand img{
+    display: inline;
+    width: 30px;
+    height: 30px;
+    margin: -5px 10px 0 0;
+    vertical-align: top;
+}
+
+//Removes navbar brand hover effect
+.navbar-inverse .navbar-brand:hover,
+.navbar-inverse .navbar-brand:focus {
+    background-color: transparent;
+    color: #999999;
+}
+
+//Fix paragraph spacing in navbar-text
+.navbar-text{
+    margin: 0 20px;
 }

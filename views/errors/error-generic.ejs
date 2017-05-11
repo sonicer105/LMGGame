@@ -1,3 +1,12 @@
-<h1><%= message %></h1>
-<h2><%= error.status %></h2>
-<pre><%= error.stack %></pre>
+<%- layout('../layouts/layout') %>
+<main class="container-fluid">
+    <div class="alert alert-danger">
+        <h1><i class="fa fa-exclamation-circle fa-fw"></i><%= error.status + " " + message %></h1>
+        <hr>
+        <pre><%= error.stack %></pre>
+        <a href="javascript:window.history.back()" class="btn btn-danger">
+            <i class="fa fa-arrow-left fa-fw"></i>
+            Go Back
+        </a>
+    </div>
+</main>

@@ -3,7 +3,7 @@ let express = require('express'),
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('home/index', { title: 'Sailex Tech LTT Game' });
+  res.render('home/index', { title: 'LTT Game', navSection: 0 });
 });
 
 module.exports = router;

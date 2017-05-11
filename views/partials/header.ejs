@@ -1,0 +1,47 @@
+<header>
+    <nav class="navbar navbar-default navbar-inverse navbar-static-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <span class="navbar-brand"><img alt="Brand" src="/images/LogoDark.png">LTT Game</span>
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#navbar-collapse-main" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="navbar-collapse-main">
+                <ul class="nav navbar-nav">
+                    <% if (typeof navSection != 'undefined' && navSection == 0){ %>
+                    <li class="active"><a href=".">Home <span class="sr-only">(current)</span></a></li>
+                    <% } else { %>
+                    <li><a href="/">Home</a></li>
+                    <% } if (typeof navSection != 'undefined' && navSection == 1){ %>
+                    <li class="active"><a href=".">Game <span class="sr-only">(current)</span></a></li>
+                    <% } else { %>
+                    <li><a href="game">Game</a></li>
+                    <% } %>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                           aria-haspopup="true"
+                           aria-expanded="false">Links <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="https://github.com/sonicer105/LMGGame">Github</a></li>
+                            <li><a href="javascript:void(0);">LTT Form Post (TODO)</a></li>
+                            <!--TODO: ^ Make form post and include link here!-->
+                            <li><a href="https://sailextech.me">Creator's Site</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><p class="navbar-text">Last Updated 10/05/2017</p></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+</header>
