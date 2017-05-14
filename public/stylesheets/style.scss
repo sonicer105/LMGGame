@@ -1,49 +1,54 @@
 main{
-    min-height: calc(100vh - 139px);
-    // min-height 100% minus footer and nav
+  min-height: calc(100vh - 139px);
+  // min-height 100% minus footer and nav
 }
 footer{
-    color: #9d9d9d;
-    background-color: #222;
-    padding: 1em 0;
+  color: #9d9d9d;
+  background-color: #222;
+  padding: 1em 0;
+  z-index: 100;
 }
 footer p{
-    margin: 0;
+  margin: 0;
+}
+
+header{
+  z-index: 250;
 }
 
 //Fix margin on .panel and .alert headers
 .panel, .alert{
-    h1, h2, h3, h4, h5, h6{
-        &:first-child{
-            margin-top: 10px;
-        }
+  h1, h2, h3, h4, h5, h6{
+    &:first-child{
+      margin-top: 10px;
     }
+  }
 }
 
 //Color Pre in .alert-danger
 .alert-danger pre{
-    color: #f00;
-    background-color: #fee;
+  color: #f00;
+  background-color: #fee;
 }
 
 //Fix brand logo size
 .navbar-brand img{
-    display: inline;
-    width: 30px;
-    height: 30px;
-    margin: -5px 10px 0 0;
-    vertical-align: top;
+  display: inline;
+  width: 30px;
+  height: 30px;
+  margin: -5px 10px 0 0;
+  vertical-align: top;
 }
 
 //Removes navbar brand hover effect
 .navbar-inverse {
-    .navbar-brand:hover, .navbar-brand:focus {
-        background-color: transparent;
-        color: #999999;
-    }
+  .navbar-brand:hover, .navbar-brand:focus {
+    background-color: transparent;
+    color: #999999;
+  }
 }
 
 //Fix paragraph spacing in navbar-text
 .navbar-text{
-    margin: 0 20px;
+  margin: 0 20px;
 }

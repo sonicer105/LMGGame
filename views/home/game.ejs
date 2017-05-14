@@ -1,19 +1,26 @@
 <%- layout('../layouts/layout') %>
 <main>
     <script src="/scripts/game-client.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700" rel="stylesheet">
     <link rel="stylesheet" href="/stylesheets/game.css">
     <div id="game-window">
-        <span class="sr-only">
+        <div class="sr-only">
             Unfortunately, the game on this page is not screen reader friendly. We apologize for the inconvenience.
-        </span>
-        <span id="game-score">
-            Score:<br>0
-        </span>
-        <span id="game-menu-button">
-            <a class="btn btn-primary btn-sm">
+        </div>
+        <div id="game-score-wrapper">
+            <div>
+            Score:
+            </div>
+            <div id="game-score">
+            0
+            </div>
+        </div>
+        <a id="game-pause-menu-button" class="btn btn-primary" href="javascript:void(0);">
+            <span>
                 <i class="fa fa-bars fa-fw"></i>
                 Menu
-            </a>
-        </span>
+            </span>
+        </a>
+        <img id="game-player" src="/images/404.png">
     </div>
 </main>
