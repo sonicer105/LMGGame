@@ -15,7 +15,7 @@ Game.playerAvatars = ["/images/Player1.png", "/images/Player2.png"];
 
 // This is the preferred player avatar. by default, it tries to fetches the last active one.
 // If none is selected, the first one in Game.playerAvatars is used
-Game.preferedPlayerAvatar = localStorage.getItem("preferedPlayerAvatar") || 0;
+Game.preferedPlayerAvatar = localStorage.getItem("preferredPlayerAvatar") || 0;
 
 // Paths to collectible item images. You can use any image you want (including remote ones).
 // Item is rendered at 64px^2 regardless of image size.
@@ -45,10 +45,11 @@ Game.score = 1000;
 // 2 = Game Paused
 // 3 = Game Over Screen
 // 4 = Game Restart
-Game.state = 1;
+Game.state = 0;
 
 // Last loop state is used for detecting when the game state has changed and run certain action.
-Game.lastLoopState = 0;
+// Should always start as -1.
+Game.lastLoopState = -1;
 
 // Init Game Environment
 // Stuff that should only ever run once on the page should go here
@@ -56,7 +57,7 @@ Game.gameInit = function() {
     "use strict";
     // Init Pause Menu Toggle Button
     Game.pauseMenuButton = $("#game-pause-menu-button");
-    Game.pauseMenuButton.click(Game.openPauseMenu);
+    Game.pauseMenuButton.click(Game.openPauseMenuAction);
 
     // Init Score
     Game.scoreWrapper = $("#game-score-wrapper");
@@ -64,8 +65,39 @@ Game.gameInit = function() {
     Game.scoreText.text(Game.score.toLocaleString());
 
     // Init Player with Preferred Player Avatars
-    Game.gamePlayer = $("#game-player");
-    Game.gamePlayer.attr("src", Game.playerAvatars[Game.preferedPlayerAvatar]);
+    Game.player = $("#game-player");
+    Game.player.attr("src", Game.playerAvatars[Game.preferedPlayerAvatar]);
+
+    // Init Main Menu Buttons
+    Game.mainMenu = $("#game-main-menu");
+    Game.mainMenuPlayerSelect = $(".player");
+    Game.mainMenuPlayerSelect.each(function (index) {
+        Game.mainMenuPlayerSelect
+            .filter(":nth-child(" + (index + 1) + ")")
+            .attr("data-avatar-index", index); // store index for each child so it's accessible on click
+        Game.mainMenuPlayerSelect
+            .filter(":nth-child(" + (index + 1) + ")")
+            .click({avatarIndex: $(this).attr("data-avatar-index")}, Game.switchPlayerAvatarActionEventWrapper);
+            // ^ Gets avatar Index from stored data in element and passes it in as an event as I can't use brackets as
+            // that will trigger the function to fire instead of assigning it.
+    });
+    Game.mainMenuPlay = $("#game-main-menu-play");
+    Game.mainMenuPlay.click(Game.mainMenuPlayAction);
+    Game.switchPlayerAvatarAction(Game.preferedPlayerAvatar);
+
+    // Init Pause Menu Buttons
+    Game.pauseMenu = $("#game-pause-menu");
+    Game.pauseMenuResume = $("#game-pause-menu-resume");
+    Game.pauseMenuResume.click(Game.pauseMenuResumeAction);
+    Game.pauseMenuExit = $("#game-pause-menu-exit");
+    Game.pauseMenuExit.click(Game.pauseMenuExitAction);
+
+    // Init Handler For Page Visibility Change (so the game pauses when focus is lost)
+    document.addEventListener( 'visibilitychange' , function() {
+        if (document.hidden && Game.state === 1) {
+            Game.state = 2;
+        }
+    }, false );
 
     // Finished. Start main logic loop
     Game.loopInterval = setInterval(Game.mainLogicLoop, 1000 / Game.fps);
@@ -81,20 +113,42 @@ Game.mainLogicLoop = function(){
         console.log("Game changed to state " + Game.state);
         // This block triggers on the game state being changed.
         // Logic that only runs once per state change should go in this if block.
+        if (Game.state === 0){
+            if (!Game.mainMenu.is(':visible')){
+                Game.mainMenu.show();
+            }
+        } else {
+            if (Game.mainMenu.is(':visible')){
+                Game.mainMenu.hide();
+            }
+        }
+
         if (Game.state === 1){
             // Show HUD
             Game.scoreWrapper.attr("style", "top:0;");
             Game.pauseMenuButton.attr("style", "top:0;");
             if (Game.lastLoopState !== 2){
                 Game.score = 0;
-                // If the In Game states is arrived at by any state except paused, reset the score
+                // If the In Game states is arrived at by any state except paused, reset the score.
             }
         } else {
             // Hide HUD
             Game.scoreWrapper.attr("style", "");
             Game.pauseMenuButton.attr("style", "");
         }
+
+        if (Game.state === 2){
+            if (!Game.pauseMenu.is(':visible')){
+                Game.pauseMenu.show();
+            }
+        } else {
+            if (Game.pauseMenu.is(':visible')){
+                Game.pauseMenu.hide();
+            }
+        }
+
         Game.lastLoopState = Game.state;
+        // The line above should always be last in this if block
     }
 
     if (Game.state === 1){
@@ -104,9 +158,43 @@ Game.mainLogicLoop = function(){
 };
 
 // Open Pause Menu Handler
-Game.openPauseMenu = function(){
+Game.openPauseMenuAction = function(){
     "use strict";
     Game.state = 2;
+};
+
+// Switch Player Avatar
+Game.switchPlayerAvatarActionEventWrapper = function(event){
+    "use strict";
+    Game.switchPlayerAvatarAction(event.data.avatarIndex);
+};
+
+Game.switchPlayerAvatarAction = function(avatarIndex){
+    "use strict";
+    Game.mainMenuPlayerSelect.each(function (index) {
+        Game.mainMenuPlayerSelect[index].classList.remove("active")
+    });
+    Game.mainMenuPlayerSelect[avatarIndex].classList.add("active");
+    localStorage.setItem("preferredPlayerAvatar", avatarIndex);
+    Game.player.attr("src", Game.playerAvatars[avatarIndex])
+};
+
+// Play Game
+Game.mainMenuPlayAction = function(){
+    "use strict";
+    Game.state = 1;
+};
+
+// Play Game
+Game.pauseMenuResumeAction = function(){
+    "use strict";
+    Game.state = 1;
+};
+
+// Play Game
+Game.pauseMenuExitAction = function(){
+    "use strict";
+    Game.state = 0;
 };
 
 // Document Ready Listener

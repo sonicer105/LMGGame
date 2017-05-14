@@ -1,4 +1,5 @@
 <%- layout('../layouts/layout') %>
+<!--suppress HtmlUnknownTarget -->
 <main>
     <script src="/scripts/game-client.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700" rel="stylesheet">
@@ -6,14 +7,11 @@
     <div id="game-window">
         <div class="sr-only">
             Unfortunately, the game on this page is not screen reader friendly. We apologize for the inconvenience.
+            <a href="javascript:window.history.back()">Use this link to go back.</a>
         </div>
         <div id="game-score-wrapper">
-            <div>
-            Score:
-            </div>
-            <div id="game-score">
-            0
-            </div>
+            <div>Score:</div>
+            <div id="game-score">0</div>
         </div>
         <a id="game-pause-menu-button" class="btn btn-primary" href="javascript:void(0);">
             <span>
@@ -22,5 +20,26 @@
             </span>
         </a>
         <img id="game-player" src="/images/404.png">
+        <div id="game-main-menu">
+            <h1>Main Menu</h1>
+            <h2>Player Select</h2>
+            <div>
+                <a href="javascript:void(0);" class="player"><img src="/images/Player1.png"></a>
+                <a href="javascript:void(0);" class="player"><img src="/images/Player2.png"></a>
+            </div>
+            <a id="game-main-menu-play" class="btn btn-primary btn-lg" href="javascript:void(0);">
+                Play
+            </a>
+        </div>
+        <div id="game-pause-menu">
+            <h1>Game Paused</h1>
+            <a id="game-pause-menu-resume" class="btn btn-primary btn-lg" href="javascript:void(0);">
+                Resume
+            </a>
+            <a id="game-pause-menu-exit" class="btn btn-primary btn-lg" href="javascript:void(0);">
+                Back to Main Menu
+            </a>
+            <h2>^ Your progress will be lost! ^</h2>
+        </div>
     </div>
 </main>

@@ -2,7 +2,7 @@
 <main class="container-fluid">
     <div class="alert alert-danger">
         <% if (typeof error.status != "undefined" && typeof error.stack != "undefined"){ %>
-        <h1><i class="fa fa-exclamation-circle fa-fw"></i><%= error.status + " " + message %></h1>
+        <h1><i class="fa fa-exclamation-circle fa-fw" aria-hidden="true"></i><%= error.status + " " + message %></h1>
         <hr>
         <pre><%= error.stack %></pre>
         <% } else { %>
@@ -10,7 +10,7 @@
         <hr>
         <% } %>
         <a href="javascript:window.history.back()" class="btn btn-danger">
-            <i class="fa fa-arrow-left fa-fw"></i>
+            <i class="fa fa-arrow-left fa-fw" aria-hidden="true"></i>
             Go Back
         </a>
     </div>
