@@ -59,8 +59,18 @@ Game.lane = 1;
 // Lane the player starts in.
 Game.defaultLane = 1;
 
-// pixel position of the above lanes
-Game.lanePositions = ["190", "240", "290"];
+// pixel position of the above lanes.
+Game.playerLanePositions = ["190", "240", "290"];
+Game.itemLanePositions = ["240", "300", "360"];
+
+// Last spawn time of an coin or projectile.
+Game.lastSpawnTime = new Date();
+
+// Minimum time between spawns in seconds.
+Game.minTimeBetweenSpawnInSeconds = 0.5;
+
+// Used for moving coins and projectiles. (get's the time it took since last draw)
+Game.lastMoveTime = new Date();
 
 // Init Game Environment
 // Stuff that should only ever run once on the page should go here
@@ -76,6 +86,9 @@ Game.gameInit = function() {
         }
         this.dispatchEvent(event);
     };
+
+    // Init Game Window
+    Game.gameWindow = $("#game-window");
 
     // Init Pause Menu Toggle Button
     Game.pauseMenuButton = $("#game-pause-menu-button");
@@ -115,6 +128,14 @@ Game.gameInit = function() {
     Game.pauseMenuExit = $("#game-pause-menu-exit");
     Game.pauseMenuExit.click(Game.pauseMenuExitAction);
 
+    // Init Game Over Menu Buttons
+    Game.gameOverMenu = $("#game-over-menu");
+    Game.gameOverMenuScore = $("#game-over-menu-score");
+    Game.gameOverMenuResume = $("#game-over-menu-restart");
+    Game.gameOverMenuResume.click(Game.gameOverMenuPlayAgainAction);
+    Game.gameOverMenuExit = $("#game-over-menu-exit");
+    Game.gameOverMenuExit.click(Game.gameOverMenuExitAction);
+
     // Init Handler For Page Visibility Change (so the game pauses when focus is lost)
     document.addEventListener( 'visibilitychange' , function() {
         if (document.hidden && Game.state === 1) {
@@ -151,6 +172,7 @@ Game.mainLogicLoop = function(){
             Game.scoreWrapper.attr("style", "top:0;");
             Game.pauseMenuButton.attr("style", "top:0;");
             Game.enableLaneChange();
+            Game.enableNavigationWarning();
             if (Game.lastLoopState !== 2){
                 Game.score = 0;
                 // If the In Game states is arrived at by any state except paused, reset the score and position.
@@ -160,6 +182,7 @@ Game.mainLogicLoop = function(){
             Game.scoreWrapper.attr("style", "");
             Game.pauseMenuButton.attr("style", "");
             Game.disableLaneChange();
+            Game.disableNavigationWarning();
         }
 
         if (Game.state === 2){
@@ -172,12 +195,67 @@ Game.mainLogicLoop = function(){
             }
         }
 
+        if (Game.state === 3){
+            if (!Game.gameOverMenu.is(':visible')){
+                Game.gameOverMenuScore.text("Score: " + Game.score.toLocaleString());
+                Game.gameOverMenu.show();
+            }
+        } else {
+            if (Game.gameOverMenu.is(':visible')){
+                Game.gameOverMenu.hide();
+            }
+        }
+
         Game.lastLoopState = Game.state;
         // The line above should always be last in this if block
     }
 
     if (Game.state === 1){
-        Game.scoreText.text(Game.score.toLocaleString());
+        //Game.scoreText.text(Game.score.toLocaleString());
+        /*
+         <img class="game-coin" src="/images/Coin1.png" style="top:190px;left:200px;">
+         <img class="game-coin" src="/images/Coin2.png" style="top:240px;left:200px;">
+         <img class="game-projectile" src="/images/Projectile.gif" style="top:290px;left:200px;">
+         */
+        // Handle Coin / Projectile Spawning
+        let spawnRand = Math.floor(Math.random() * 100);
+        let time = new Date();
+        if (spawnRand >= 99 && Math.floor((time - Game.lastSpawnTime)/1000) > Game.minTimeBetweenSpawnInSeconds){
+            let whatToSpawn = Math.floor(Math.random() * (Game.coinImages.length + 1));
+            let laneToSpawnIn = Math.floor(Math.random() * (Game.itemLanePositions.length));
+            if (whatToSpawn === 0){
+                Game.gameWindow.append("<img src='" + Game.projectileImages[0] +
+                    "' class='game-projectile' data-lane='" + laneToSpawnIn + "'>");
+            } else {
+                whatToSpawn--;
+                Game.gameWindow.append("<img src='" + Game.coinImages[whatToSpawn] +
+                    "' class='game-coin' data-coin-index='" + whatToSpawn + "' data-lane='" + laneToSpawnIn + "'>");
+            }
+            Game.lastSpawnTime = time;
+        }
+        $(".game-coin, .game-projectile").each(function () {
+            let lastPosition = $(this).position();
+            let lane = $(this).attr("data-lane");
+            let delta = new Date() - Game.lastMoveTime;
+            if (lastPosition.top === 0){
+                $(this).attr("style", "top:" + Game.itemLanePositions[lane] + "px;left:" + $( window ).width() + "px;");
+            } else if(lastPosition.left <= ($(this).width() * -1)) {
+                $(this).remove();
+            } else if(lastPosition.left <= 150 && lastPosition.left >= 0 && lane === Game.lane.toString()) {
+                if ($(this).hasClass("game-coin")){
+                    Game.score += Game.coinWorth[$(this).attr("data-coin-index")];
+                    Game.scoreText.text(Game.score.toLocaleString());
+                    $(this).remove();
+                } else {
+                    Game.moveToDefaultLane();
+                    Game.removeAllItems();
+                    Game.state = 3;
+                }
+            } else {
+                $(this).attr("style", "top:" + lastPosition.top + "px;left:" + (lastPosition.left - delta) + "px;");
+            }
+        });
+        Game.lastMoveTime = new Date();
     }
     // Score handling
 };
@@ -210,15 +288,33 @@ Game.mainMenuPlayAction = function(){
     Game.state = 1; //go to in game state
 };
 
-// Play Game
+// Resume Game
 Game.pauseMenuResumeAction = function(){
     "use strict";
     Game.state = 1; //go to in game state
 };
 
-// Play Game
+  // Exit to Main Menu
 Game.pauseMenuExitAction = function(){
     "use strict";
+    Game.moveToDefaultLane();
+    Game.removeAllItems();
+    Game.state = 0; //go to main menu state
+};
+
+// Play Game Again
+Game.gameOverMenuPlayAgainAction = function(){
+    "use strict";
+    Game.moveToDefaultLane();
+    Game.removeAllItems();
+    Game.state = 1; //go to in game state
+};
+
+// Exit to Main Menu
+Game.gameOverMenuExitAction = function(){
+    "use strict";
+    Game.moveToDefaultLane();
+    Game.removeAllItems();
     Game.state = 0; //go to main menu state
 };
 
@@ -262,7 +358,7 @@ Game.disableLaneChange = function () {
 Game.moveLanes = function(direction) {
     "use strict";
     if (direction > 0){
-        if (Game.lane < (Game.lanePositions.length - 1)){
+        if (Game.lane < (Game.playerLanePositions.length - 1)){
             Game.lane++;
         }
     } else {
@@ -270,14 +366,33 @@ Game.moveLanes = function(direction) {
             Game.lane--;
         }
     }
-    Game.player.attr("style", "top:" + Game.lanePositions[Game.lane] + "px;");
+    Game.player.attr("style", "top:" + Game.playerLanePositions[Game.lane] + "px;");
 };
 
 // Move the player to the default lane
 Game.moveToDefaultLane = function(direction) {
-  "use strict";
-  Game.player.attr("style", "top:" + Game.lanePositions[Game.defaultLane] + "px;");
-  Game.lane = Game.defaultLane;
+    "use strict";
+    Game.player.attr("style", "top:" + Game.playerLanePositions[Game.defaultLane] + "px;");
+    Game.lane = Game.defaultLane;
+};
+
+// Warns the player before leaving the page if their's an active game
+Game.enableNavigationWarning = function () {
+    "use strict";
+    window.onbeforeunload = function() {
+        Game.state = 2;
+        return true;
+    };
+};
+
+Game.disableNavigationWarning = function () {
+    "use strict";
+    window.onbeforeunload = null;
+};
+
+Game.removeAllItems = function(){
+    "use strict";
+    $(".game-coin, .game-projectile").remove();
 };
 
 // Document Ready Listener

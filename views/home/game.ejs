@@ -1,14 +1,22 @@
 <%- layout('../layouts/layout') %>
 <!--suppress HtmlUnknownTarget -->
 <main>
+
+    <!-- Game Imports -->
     <script src="/scripts/game-client.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700" rel="stylesheet">
     <link rel="stylesheet" href="/stylesheets/game.css">
+
+    <!-- Game Window -->
     <div id="game-window">
+
+        <!-- Screen Reader Warning -->
         <div class="sr-only">
             Unfortunately, the game on this page is not screen reader friendly. We apologize for the inconvenience.
             <a href="javascript:window.history.back()">Use this link to go back.</a>
         </div>
+
+        <!-- In Game HUD -->
         <div id="game-score-wrapper">
             <div>Score:</div>
             <div id="game-score">0</div>
@@ -19,8 +27,14 @@
                 Menu
             </span>
         </a>
+
+        <!-- Player -->
         <img id="game-player" src="/images/404.png">
+
+        <!-- Tap movement detection for mobile users -->
         <div id="game-movement-tap-region"></div>
+
+        <!-- Menus -->
         <div id="game-main-menu" style="display: none">
             <h1>Main Menu</h1>
             <h2>Player Select</h2>
@@ -32,6 +46,7 @@
                 Play
             </a>
         </div>
+
         <div id="game-pause-menu" style="display: none">
             <h1>Game Paused</h1>
             <a id="game-pause-menu-resume" class="btn btn-primary btn-lg" href="javascript:void(0);">
@@ -42,5 +57,19 @@
             </a>
             <h2>^ Your progress will be lost! ^</h2>
         </div>
+
+        <div id="game-over-menu" style="display: none">
+            <h1>Game Over</h1>
+            <h2 id="game-over-menu-score"></h2>
+            <a id="game-over-menu-restart" class="btn btn-primary btn-lg" href="javascript:void(0);">
+                Play Again
+            </a>
+            <a id="game-over-menu-exit" class="btn btn-primary btn-lg" href="javascript:void(0);">
+                Back to Main Menu
+            </a>
+        </div>
+
+        <!-- Game Coins and Projectiles below this point (Will be appended programmatically) -->
+
     </div>
 </main>

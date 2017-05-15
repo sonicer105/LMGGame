@@ -21,6 +21,7 @@ main{
 }
 #game-window{
   position: relative;
+  overflow: hidden;
   width: 100%;
   height: $game-window-height;
   min-height: 512px;
@@ -37,6 +38,12 @@ main{
     min-height: 512px;
     min-width: 512px;
     z-index: 1;
+  }
+  .game-coin, .game-projectile{
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    z-index: 400;
   }
 }
 #game-movement-tap-region{
@@ -91,7 +98,7 @@ main{
   height: 128px;
   z-index: 25;
 }
-#game-main-menu, #game-pause-menu{
+#game-main-menu, #game-pause-menu, #game-over-menu{
   display: flex;
   justify-content: center;
   flex-direction: column;
