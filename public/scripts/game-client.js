@@ -1,3 +1,7 @@
+  //////////////////////////////////////////////////////////////////////////////
+ // DO NOT TOUCH ANYTHING IN THIS FILE UNLESS YOU KNOW WHAT YOU ARE DOING!!! //
+//////////////////////////////////////////////////////////////////////////////
+
 // Namespace
 let Game = {};
 
@@ -13,9 +17,9 @@ Game.targetFPS = 60;
 // Player anti-aliasing is off by default. edit CSS to re-enable.
 Game.playerAvatars = ["/images/Player1.png", "/images/Player2.png"];
 
-// This is the preferred player avatar. by default, it tries to fetches the last active one.
+// This is the preferred player avatar. by default, it tries to fetches the last active one with localStorage.
 // If none is selected, the first one in Game.playerAvatars is used
-Game.preferedPlayerAvatar = localStorage.getItem("preferredPlayerAvatar") || 0;
+Game.preferedPlayerAvatar = 0;
 
 // Paths to collectible item images. You can use any image you want (including remote ones).
 // Item is rendered at 64px^2 regardless of image size.
@@ -30,15 +34,6 @@ Game.coinWorth = [250, 100];
 // Item anti-aliasing is off by default. edit CSS to re-enable.
 Game.projectileImages = ["/images/Projectile.gif"];
 
-
-  //////////////////////////////////////////////////////////////////////////////////
- // DO NOT TOUCH ANYTHING BELOW THIS POINT UNLESS YOU KNOW WHAT YOU ARE DOING!!! //
-//////////////////////////////////////////////////////////////////////////////////
-
-// Game Score
-// It's self explanatory
-Game.score = 1000;
-
 // Current Game state
 // 0 = Main Menu
 // 1 = In Game
@@ -51,10 +46,37 @@ Game.state = 0;
 // Should always start as -1.
 Game.lastLoopState = -1;
 
+// Game Score
+// It's self explanatory
+Game.score = 0;
+
+// Player current lane
+// lane 0 = top
+// lane 1 = middle
+// lane 2 = bottom
+Game.lane = 1;
+
+// Lane the player starts in.
+Game.defaultLane = 1;
+
+// pixel position of the above lanes
+Game.lanePositions = ["190", "240", "290"];
+
 // Init Game Environment
 // Stuff that should only ever run once on the page should go here
 Game.gameInit = function() {
     "use strict";
+    // Creating a way to programmatically fire key down events so the player can be moved by tapping with little extra
+    // work.
+    Node.prototype.fire=function(type,options){
+        let event = new CustomEvent(type);
+        for(let p in options){
+            //noinspection JSUnfilteredForInLoop
+            event[p]=options[p];
+        }
+        this.dispatchEvent(event);
+    };
+
     // Init Pause Menu Toggle Button
     Game.pauseMenuButton = $("#game-pause-menu-button");
     Game.pauseMenuButton.click(Game.openPauseMenuAction);
@@ -65,6 +87,7 @@ Game.gameInit = function() {
     Game.scoreText.text(Game.score.toLocaleString());
 
     // Init Player with Preferred Player Avatars
+    Game.preferedPlayerAvatar = localStorage.getItem("preferredPlayerAvatar") || 0;
     Game.player = $("#game-player");
     Game.player.attr("src", Game.playerAvatars[Game.preferedPlayerAvatar]);
 
@@ -127,14 +150,16 @@ Game.mainLogicLoop = function(){
             // Show HUD
             Game.scoreWrapper.attr("style", "top:0;");
             Game.pauseMenuButton.attr("style", "top:0;");
+            Game.enableLaneChange();
             if (Game.lastLoopState !== 2){
                 Game.score = 0;
-                // If the In Game states is arrived at by any state except paused, reset the score.
+                // If the In Game states is arrived at by any state except paused, reset the score and position.
             }
         } else {
             // Hide HUD
             Game.scoreWrapper.attr("style", "");
             Game.pauseMenuButton.attr("style", "");
+            Game.disableLaneChange();
         }
 
         if (Game.state === 2){
@@ -182,31 +207,103 @@ Game.switchPlayerAvatarAction = function(avatarIndex){
 // Play Game
 Game.mainMenuPlayAction = function(){
     "use strict";
-    Game.state = 1;
+    Game.state = 1; //go to in game state
 };
 
 // Play Game
 Game.pauseMenuResumeAction = function(){
     "use strict";
-    Game.state = 1;
+    Game.state = 1; //go to in game state
 };
 
 // Play Game
 Game.pauseMenuExitAction = function(){
     "use strict";
-    Game.state = 0;
+    Game.state = 0; //go to main menu state
+};
+
+// Enables Handling of changing lanes
+Game.enableLaneChange = function () {
+    "use strict";
+    $(document).keydown(function(event) {
+        "use strict";
+        if (event.keyCode === 87 || event.keyCode === 38){ // if 'W' or 'Up Arrow'
+            event.preventDefault();
+            // event.preventDefault() Prevent the default action of those keys if their bound to something else
+            // (eg: bound by a browser extension (like Tamper Monkey) to do something else when pressed)
+            Game.moveLanes(-1); // Move up
+        } else if (event.keyCode === 83 || event.keyCode === 40){ // if 'S' or 'Down Arrow'
+            event.preventDefault();
+            Game.moveLanes(1); // Move down
+        }
+    });
+    // In this block I'm getting the click position relative of game-movement-tap-region and firing the associated
+    // key down event to move the player. This is for mobile users with a soft keyboard.
+    $("#game-movement-tap-region").click(function (event) {
+        "use strict";
+        let y = event.pageY - $(this).offset().top; // gets Y position of click relative to #game-movement-tap-region
+        if (y < ($(this).height() / 2)){ // if in top half of element
+            document.fire("keydown",{keyCode:87}) // move up (via W key)
+        } else { // if in bottom half of element
+            document.fire("keydown",{keyCode:83}) // move down (via S key)
+        }
+    });
+};
+
+// Disables Handling of changing lanes
+Game.disableLaneChange = function () {
+    "use strict";
+    $(document).off("keydown");
+    $("#game-movement-tap-region").off("click");
+};
+
+// Moves the player one lane
+// -1 means up, 1 means down
+Game.moveLanes = function(direction) {
+    "use strict";
+    if (direction > 0){
+        if (Game.lane < (Game.lanePositions.length - 1)){
+            Game.lane++;
+        }
+    } else {
+        if (Game.lane > 0){
+            Game.lane--;
+        }
+    }
+    Game.player.attr("style", "top:" + Game.lanePositions[Game.lane] + "px;");
+};
+
+// Move the player to the default lane
+Game.moveToDefaultLane = function(direction) {
+  "use strict";
+  Game.player.attr("style", "top:" + Game.lanePositions[Game.defaultLane] + "px;");
+  Game.lane = Game.defaultLane;
 };
 
 // Document Ready Listener
 $(function() {
     "use strict";
     // Check for local storage support
-    if (typeof(Storage) !== "undefined") {
+    if (localStorage) {
         // If local storage is available, proceed.
         Game.gameInit();
     } else {
-        // If local storage is NOT available, throw error.
+        // If local storage is NOT available, throw error. to simulate this:
+        // Chrome:
+        // in Options > Show advanced settings > Content Settings > Cookies, check "Block sites from setting any data"
+        // Firefox:
+        // go to the address "about:config" and toggle dom.storage.enabled to false
         alert("You browser does not support local storage. Please allow local storage access in your browser settings to play this game");
         window.location.replace("/");
     }
 });
+
+        //[JavaScript Key Codes]/////////////////////////////
+       //                                                 //
+      //  WASD   +------+        Arrow  +------+         //
+     //  Keys   /  87  /        Keys   /  38  /         //
+    //  +------+------+------+ +------+------+------+  //
+   //  /  65  /  83  /  68  / /  37  /  40  /  39  /  //
+  //  +------+------+------+ +------+------+------+  //
+ //                                                 //
+/////////////////////////////////////////////////////
