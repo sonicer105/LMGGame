@@ -1,10 +1,15 @@
 <%- layout('../layouts/layout') %>
 <main class="container-fluid">
+    <div class="alert alert-warning">
+        <i class="fa fa-exclamation-triangle fa-fw" aria-hidden="true"></i>
+        <strong>DISCLAIMER:</strong>
+        Though you can play this game on mobile phones, I do not recommended it. The game is best enjoyed on a desktop. Use a
+        tablet at the vary least.
+    </div>
     <div class="jumbotron">
         <div class="container-fluid">
             <h1><%- title %></h1>
             <p>Welcome to the <%- title %></p>
-            <p>Under Construction. Please come back later!</p>
             <a class="btn btn-primary btn-lg" href="game">
                 Play Now
                 <i class="fa fa-arrow-right fa-fw" aria-hidden="true"></i>
@@ -15,14 +20,44 @@
         <div class="panel-body">
             <h1>About</h1><!--TODO: Fill in About Section-->
             <hr>
-            <p>Placeholder</p>
+            <p>
+                A NodeJS game made as part of the Floatplane Media hiring process.
+            </p>
+            <p>
+            You can find the LTT post about it <span style="text-decoration: line-through">here</span> (Not making one until I hear back from Floatplane)
+            </p>
+            <p>
+            You can find a live version [here](https://infinite-brook-45557.herokuapp.com/)
+            </p>
         </div>
     </section>
     <section class="panel panel-default">
         <div class="panel-body">
             <h1>How To Play</h1><!--TODO: Fill in How To Play Section-->
             <hr>
-            <p>Placeholder</p>
+            <ul>
+                <li>Use the <kbd>&uparrow;</kbd> or <kbd>W</kbd> key to go up a lane.</li>
+                <li>Use the <kbd>&downarrow;</kbd> or <kbd>S</kbd> key to go down a lane.</li>
+                <li>You can also tap the top or bottom of the road to move up or down by one lane.</li>
+                <li>
+                    Pick up coins to increase your score.
+                    <ul>
+                        <li>Team Red coins award 100 points.</li>
+                        <li>Team Green coins award 250 points.</li>
+                    </ul>
+                </li>
+                <li>
+                    Avoid flaming servers.
+                    <ul>
+                        <li>
+                            No, they are NOT the same ones as in Linus's server room.
+                            <ul>
+                                <li><small>(I'm trying not to incur the wrath of Linus)</small></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
         </div>
     </section>
 </main>
