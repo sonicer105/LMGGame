@@ -60,8 +60,12 @@ Game.lane = 1;
 Game.defaultLane = 1;
 
 // pixel position of the above lanes.
-Game.playerLanePositions = ["190", "240", "290"];
-Game.itemLanePositions = ["240", "300", "360"];
+Game.playerLanePositions = [190, 240, 290];
+Game.itemLanePositions = [240, 300, 360];
+Game.laneZIndex = [100, 110, 120];
+Game.playerZIndexOffset = 5;
+Game.projectileZIndexOffset = 1;
+Game.coinZIndexOffset = 0;
 
 // Last spawn time of an coin or projectile.
 Game.lastSpawnTime = new Date();
@@ -157,7 +161,7 @@ Game.mainLogicLoop = function(){
         console.log("Game changed to state " + Game.state);
         // This block triggers on the game state being changed.
         // Logic that only runs once per state change should go in this if block.
-        if (Game.state === 0){
+        if (Game.state === 0){ // Main Menu
             if (!Game.mainMenu.is(':visible')){
                 Game.mainMenu.show();
             }
@@ -167,14 +171,14 @@ Game.mainLogicLoop = function(){
             }
         }
 
-        if (Game.state === 1){
+        if (Game.state === 1){ // In Game
             // Show HUD
             Game.scoreWrapper.attr("style", "top:0;");
             Game.pauseMenuButton.attr("style", "top:0;");
             Game.enableLaneChange();
             Game.enableNavigationWarning();
             if (Game.lastLoopState !== 2){
-                Game.score = 0;
+                Game.resetScore();
                 // If the In Game states is arrived at by any state except paused, reset the score and position.
             }
         } else {
@@ -185,17 +189,18 @@ Game.mainLogicLoop = function(){
             Game.disableNavigationWarning();
         }
 
-        if (Game.state === 2){
+        if (Game.state === 2){ // Pause Menu
             if (!Game.pauseMenu.is(':visible')){
                 Game.pauseMenu.show();
             }
         } else {
+            Game.lastMoveTime = new Date();
             if (Game.pauseMenu.is(':visible')){
                 Game.pauseMenu.hide();
             }
         }
 
-        if (Game.state === 3){
+        if (Game.state === 3){ // Game Over Menu
             if (!Game.gameOverMenu.is(':visible')){
                 Game.gameOverMenuScore.text("Score: " + Game.score.toLocaleString());
                 Game.gameOverMenu.show();
@@ -211,53 +216,66 @@ Game.mainLogicLoop = function(){
     }
 
     if (Game.state === 1){
-        //Game.scoreText.text(Game.score.toLocaleString());
-        /*
-         <img class="game-coin" src="/images/Coin1.png" style="top:190px;left:200px;">
-         <img class="game-coin" src="/images/Coin2.png" style="top:240px;left:200px;">
-         <img class="game-projectile" src="/images/Projectile.gif" style="top:290px;left:200px;">
-         */
-        // Handle Coin / Projectile Spawning
-        let spawnRand = Math.floor(Math.random() * 100);
-        let time = new Date();
-        if (spawnRand >= 99 && Math.floor((time - Game.lastSpawnTime)/1000) > Game.minTimeBetweenSpawnInSeconds){
-            let whatToSpawn = Math.floor(Math.random() * (Game.coinImages.length + 1));
-            let laneToSpawnIn = Math.floor(Math.random() * (Game.itemLanePositions.length));
-            if (whatToSpawn === 0){
-                Game.gameWindow.append("<img src='" + Game.projectileImages[0] +
-                    "' class='game-projectile' data-lane='" + laneToSpawnIn + "'>");
-            } else {
-                whatToSpawn--;
-                Game.gameWindow.append("<img src='" + Game.coinImages[whatToSpawn] +
-                    "' class='game-coin' data-coin-index='" + whatToSpawn + "' data-lane='" + laneToSpawnIn + "'>");
-            }
-            Game.lastSpawnTime = time;
-        }
-        $(".game-coin, .game-projectile").each(function () {
-            let lastPosition = $(this).position();
-            let lane = $(this).attr("data-lane");
-            let delta = new Date() - Game.lastMoveTime;
-            if (lastPosition.top === 0){
-                $(this).attr("style", "top:" + Game.itemLanePositions[lane] + "px;left:" + $( window ).width() + "px;");
-            } else if(lastPosition.left <= ($(this).width() * -1)) {
-                $(this).remove();
-            } else if(lastPosition.left <= 150 && lastPosition.left >= 0 && lane === Game.lane.toString()) {
-                if ($(this).hasClass("game-coin")){
-                    Game.score += Game.coinWorth[$(this).attr("data-coin-index")];
-                    Game.scoreText.text(Game.score.toLocaleString());
-                    $(this).remove();
-                } else {
-                    Game.moveToDefaultLane();
-                    Game.removeAllItems();
-                    Game.state = 3;
-                }
-            } else {
-                $(this).attr("style", "top:" + lastPosition.top + "px;left:" + (lastPosition.left - delta) + "px;");
-            }
-        });
-        Game.lastMoveTime = new Date();
+        Game.spawnItem();
+        Game.moveAllItems();
     }
     // Score handling
+};
+
+Game.spawnItem = function(){
+    // Handle Coin / Projectile Spawning
+    let spawnRand = Math.floor(Math.random() * 100);
+    let time = new Date();
+    if (spawnRand >= 99 && Math.floor((time - Game.lastSpawnTime)/1000) > Game.minTimeBetweenSpawnInSeconds){
+        // ^ random time after 0.5 seconds
+        let whatToSpawn = Math.floor(Math.random() * (Game.coinImages.length + 1));
+        let laneToSpawnIn = Math.floor(Math.random() * (Game.itemLanePositions.length));
+        if (whatToSpawn === 0){
+            Game.gameWindow.append("<img src='" + Game.projectileImages[0] +
+                "' class='game-projectile' data-lane='" + laneToSpawnIn + "'>");
+        } else {
+            whatToSpawn--; // decrement for coin array
+            Game.gameWindow.append("<img src='" + Game.coinImages[whatToSpawn] +
+                "' class='game-coin' data-coin-index='" + whatToSpawn + "' data-lane='" + laneToSpawnIn + "'>");
+        }
+        Game.lastSpawnTime = time;
+    }
+};
+
+Game.moveAllItems = function(){
+    "use strict";
+    $(".game-coin, .game-projectile").each(function () { // for every game object,
+        let lastPosition = $(this).position();
+        let lane = $(this).attr("data-lane"); // object's lane
+        let delta = new Date() - Game.lastMoveTime; // time since last draw for consistent moving
+        if (lastPosition.top === 0){ // if the item JUST spawned in, reposition it.
+            $(this).attr("style", "top:" + Game.itemLanePositions[lane] + "px;left:" + $( window ).width() + "px;");
+        } else if(lastPosition.left <= ($(this).width() * -1)) { // if the item is off screen,
+            $(this).remove(); // remove it
+        } else if(lastPosition.left <= 150 && lastPosition.left >= 0 && lane === Game.lane.toString()) {
+            // ^ if the object collided with the player,
+            if ($(this).hasClass("game-coin")){ // if it's a coin,
+                Game.score += Game.coinWorth[$(this).attr("data-coin-index")]; // get the coin's worth
+                Game.scoreText.text(Game.score.toLocaleString()); // add it to the score
+                $(this).remove(); // remove it
+            } else { // if it's anything else it's probably a projectile
+                Game.moveToDefaultLane();
+                Game.removeAllItems();
+                Game.state = 3; // You died
+            }
+        } else { // if non of the above conditions are true, just move it by delta time.
+            let zIndex = Game.laneZIndex[lane];
+            if ($(this).hasClass("game-coin")) {
+                zIndex += Game.coinZIndexOffset;
+            } else {
+                zIndex += Game.projectileZIndexOffset;
+            }
+            $(this).attr("style", "top:" + lastPosition.top + "px;" +
+                                  "left:" + (lastPosition.left - delta) + "px;" +
+                                  "z-index:" + zIndex + ";");
+        }
+    });
+    Game.lastMoveTime = new Date();
 };
 
 // Open Pause Menu Handler
@@ -354,26 +372,27 @@ Game.disableLaneChange = function () {
 };
 
 // Moves the player one lane
-// -1 means up, 1 means down
+// positive number means up, negative number means down, 0 means don't move, just redraw
 Game.moveLanes = function(direction) {
     "use strict";
     if (direction > 0){
         if (Game.lane < (Game.playerLanePositions.length - 1)){
             Game.lane++;
         }
-    } else {
+    } else if (direction < 0) {
         if (Game.lane > 0){
             Game.lane--;
         }
     }
-    Game.player.attr("style", "top:" + Game.playerLanePositions[Game.lane] + "px;");
+    Game.player.attr("style", "top:" + Game.playerLanePositions[Game.lane] + "px;" +
+                              "z-index:" + (Game.laneZIndex[Game.lane] + Game.playerZIndexOffset) + ";");
 };
 
 // Move the player to the default lane
 Game.moveToDefaultLane = function(direction) {
     "use strict";
-    Game.player.attr("style", "top:" + Game.playerLanePositions[Game.defaultLane] + "px;");
     Game.lane = Game.defaultLane;
+    Game.moveLanes(0);
 };
 
 // Warns the player before leaving the page if their's an active game
@@ -395,6 +414,12 @@ Game.removeAllItems = function(){
     $(".game-coin, .game-projectile").remove();
 };
 
+Game.resetScore = function(){
+    "use strict";
+    Game.score = 0;
+    Game.scoreText.text(Game.score.toLocaleString());
+};
+
 // Document Ready Listener
 $(function() {
     "use strict";
@@ -413,12 +438,42 @@ $(function() {
     }
 });
 
-        //[JavaScript Key Codes]/////////////////////////////
-       //                                                 //
-      //  WASD   +------+        Arrow  +------+         //
-     //  Keys   /  87  /        Keys   /  38  /         //
-    //  +------+------+------+ +------+------+------+  //
-   //  /  65  /  83  /  68  / /  37  /  40  /  39  /  //
+  //[JavaScript Key Codes]/////////////////////////////
+  //                                                 //
+  //  WASD   +------+        Arrow  +------+         //
+  //  Keys   |  87  |        Keys   |  38  |         //
   //  +------+------+------+ +------+------+------+  //
- //                                                 //
-/////////////////////////////////////////////////////
+  //  |  65  |  83  |  68  | |  37  |  40  |  39  |  //
+  //  +------+------+------+ +------+------+------+  //
+  //                                                 //
+  /////////////////////////////////////////////////////
+
+  //[Layers (z-index)]/////////////////////////////////
+  //                                                 //
+  //  z-index - selector                             //
+  //                                                 //
+  //  Menus                                          //
+  //                                                 //
+  //  300 - #game-main-menu                          //
+  //  300 - #game-pause-menu                         //
+  //  300 - #game-over-menu                          //
+  //                                                 //
+  //  UI                                             //
+  //                                                 //
+  //  220 - header                                   //
+  //  220 - footer                                   //
+  //  210 - #game-pause-menu-button                  //
+  //  210 - #game-score-wrapper                      //
+  //  200 - #game-movement-tap-region                //
+  //                                                 //
+  //  Game Objects (top, center, bottom lane)        //
+  //                                                 //
+  //  105, 115, 125 - #game-player                   //
+  //  101, 111, 121 - .game-projectile               //
+  //  100, 110, 120 - .game-coin                     //
+  //                                                 //
+  //  BG                                             //
+  //                                                 //
+  //  010 - #game-window:before                      //
+  //                                                 //
+  /////////////////////////////////////////////////////

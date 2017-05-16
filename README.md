@@ -7,7 +7,14 @@ A NodeJS game made as part of the Floatplane Media hiring process.
 
 You can find the LTT post about it ~~here~~ (Not making one until I hear back from Floatplane)
 
-You can find a live version [here](https://infinite-brook-45557.herokuapp.com/)
+You can find a live version the master branch [here](https://infinite-brook-45557.herokuapp.com/)
+
+## UPDATE 2017-05-16
+Since I was not sure if the coding challenge was a "Pencils down, stop working" at the deadline deal, I have created a
+branch called `timed-coding-challenge-final` that has my code up until the deadline and will not be updated. You can
+find that [here](https://github.com/sonicer105/LMGGame/tree/timed-coding-challenge-final). I will continue to make
+updates to branch `master`, namely I found a few bugs after submitting the project for review.
+
 ## Disclaimer
 Though you can play this game on mobile phones, I do not recommended it. The game is best enjoyed on a desktop. Use a
 tablet at the vary least.
