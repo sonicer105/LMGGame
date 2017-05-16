@@ -13,7 +13,7 @@ You can find a live version the master branch [here](https://infinite-brook-4555
 Since I was not sure if the coding challenge was a "Pencils down, stop working" at the deadline deal, I have created a
 branch called `timed-coding-challenge-final` that has my code up until the deadline and will not be updated. You can
 find that [here](https://github.com/sonicer105/LMGGame/tree/timed-coding-challenge-final). I will continue to make
-updates to branch `master`, namely I found a few bugs after submitting the project for review.
+updates to branch `master`, namely I found a few bugs after submitting the project for review. Keep in mind that the live version link on that branch is tracking `master`, not `timed-coding-challenge-final` so the heorku app does not reflect that  version of the code.
 
 ## Disclaimer
 Though you can play this game on mobile phones, I do not recommended it. The game is best enjoyed on a desktop. Use a
