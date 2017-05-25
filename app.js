@@ -1,4 +1,6 @@
 // Imports
+let db = require('./db');
+
 let express = require('express'),
 engine = require('ejs-locals'),
 path = require('path'),

@@ -1,0 +1,8 @@
+{
+  "DBSTRING": "mongodb://<db-user>:<db-password>@<domain>:<port>/<database-name>",
+  "Comment-0": "------------------------------------------------------------------------------------------------------",
+  "Comment-1": "This is an example mongoDB connection string. Replace it with one of your own for testing.",
+  "Comment-2": "In production, use process.env.DBSTRING variable instead.",
+  "Comment-3": "Services like Heroku allow you to set that up securely on the backend so it's not in your code base.",
+  "Comment-4": "------------------------------------------------------------------------------------------------------"
+}

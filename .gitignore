@@ -485,3 +485,4 @@ __pycache__/
 # CSS Files (SCSS will recompile them)
 *.map
 *.css
+/config.json
