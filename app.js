@@ -1,6 +1,4 @@
 // Imports
-let db = require('./db');
-
 let express = require('express'),
 engine = require('ejs-locals'),
 path = require('path'),
@@ -8,6 +6,9 @@ logger = require('morgan'),
 cookieParser = require('cookie-parser'),
 bodyParser = require('body-parser'),
 sassMiddleware = require('node-sass-middleware'),
+
+// Get the database
+db = require('./db'),
 
 // Views
 home = require('./routes/home'),
@@ -33,8 +34,8 @@ app.use(sassMiddleware({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', home);
 app.use('/api', api);
+app.use('/', home);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
